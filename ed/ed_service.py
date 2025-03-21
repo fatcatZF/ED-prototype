@@ -13,20 +13,19 @@ model_cache = {}
 
 
 
-@app.route("/predict_drift_score", methods=["POST"]) 
-def predict_drift_score():
+@app.route("/predict_drift_score/<env_name>", methods=["POST"]) 
+def predict_drift_score(env_name):
     data = request.json
 
     # Check required fields
-    if not all(k in data for k in ("t", "st", "at", "stp1", "env_name")):
-        return jsonify({"error": "Missing one or more required fields: 't', 'st', 'at', 'stp1', 'env_name'"}), 400
+    if not all(k in data for k in ("t", "st", "at", "stp1")):
+        return jsonify({"error": "Missing one or more required fields: 't', 'st', 'at', 'stp1'"}), 400
     
     try:
         timestamp = data["t"]
         st = np.array(data["st"])
         at = np.array(data["at"])
         stp1 = np.array(data["stp1"])
-        env_name = data["env_name"]
 
         transition = np.concatenate([st, stp1-st]).reshape(1, -1)
         x = np.concatenate([transition, at.reshape(1,-1)], axis=1).astype(np.float32)
